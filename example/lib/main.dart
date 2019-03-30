@@ -30,6 +30,8 @@ class _MyAppState extends State<MyApp> {
       platformVersion = 'Failed to get platform version.';
     }
 
+    FlutterBluetooth.turnOff();
+
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
@@ -38,6 +40,7 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _platformVersion = platformVersion;
     });
+
   }
 
   @override
@@ -48,7 +51,11 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+            child: Column( children:[
+              RaisedButton(onPressed:(){FlutterBluetooth.turnOn();}),
+              RaisedButton(onPressed:(){FlutterBluetooth.turnOff();})
+            ]
+            )
         ),
       ),
     );

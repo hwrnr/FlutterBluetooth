@@ -10,4 +10,13 @@ class FlutterBluetooth {
     final String version = await _channel.invokeMethod('getPlatformVersion');
     return version;
   }
+  
+  static void turnOn(){
+    _channel.invokeMethod('turnOn');
+  }
+
+  static void turnOff(){
+    _channel.invokeMethod('turnOff');
+  }
+
 }
