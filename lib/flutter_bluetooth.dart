@@ -19,4 +19,14 @@ class FlutterBluetooth {
     _channel.invokeMethod('turnOff');
   }
 
+  static Future<List<String>> getPairedDevices() async {
+    final List<String> devices = (await _channel.invokeMethod('getPairedDevices')).cast<String>();
+    return devices;
+  }
+
+  static Future<bool> isEnabled() async {
+    final bool isEnabled = (await _channel.invokeMethod('isEnabled')) as bool;
+    return isEnabled;
+  }
+
 }

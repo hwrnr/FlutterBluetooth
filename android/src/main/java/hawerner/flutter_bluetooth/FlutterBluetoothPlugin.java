@@ -2,7 +2,15 @@ package hawerner.flutter_bluetooth;
 
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.hardware.camera2.params.BlackLevelPattern;
 import android.os.Build;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -18,44 +26,76 @@ public class FlutterBluetoothPlugin implements MethodCallHandler {
     channel.setMethodCallHandler(new FlutterBluetoothPlugin());
   }
 
-  @TargetApi(Build.VERSION_CODES.ECLAIR)
   private static void turnOn()
   {
     BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    if(!mBluetoothAdapter.isEnabled())
+    if(mBluetoothAdapter != null && !mBluetoothAdapter.isEnabled())
     {
       mBluetoothAdapter.enable();
     }
   }
 
-  @TargetApi(Build.VERSION_CODES.ECLAIR)
   private static void turnOff()
   {
     BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    if(mBluetoothAdapter.isEnabled())
+    if(mBluetoothAdapter != null && mBluetoothAdapter.isEnabled())
     {
       mBluetoothAdapter.disable();
     }
   }
 
+  private static List<String> getPairedDevices(){
+    BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    Set<BluetoothDevice> bluetoothDevices;
+    if (mBluetoothAdapter != null) {
+      bluetoothDevices = mBluetoothAdapter.getBondedDevices();
+      List<String> arrayOfDevices = new ArrayList<>(bluetoothDevices.size());
+
+      for(BluetoothDevice device : bluetoothDevices){
+        arrayOfDevices.add(device.getAddress());
+      }
+
+      return arrayOfDevices;
+    }
+    return null;
+  }
+
+  private static Boolean isEnabled(){
+      try {
+          Log.i("Bluetooth", String.valueOf(BluetoothAdapter.getDefaultAdapter().isEnabled()));
+          return BluetoothAdapter.getDefaultAdapter().isEnabled();
+      }
+      catch (NullPointerException e){ //bluetooth isn't available
+          Log.i("Bluetooth","Null pointer exception");
+          return false;
+      }
+  }
 
   @Override
   public void onMethodCall(MethodCall call, Result result) {
-    if (call.method.equals("getPlatformVersion")) {
-      result.success("Android " + android.os.Build.VERSION.RELEASE);
-    }
-    else if (call.method.equals("turnOn")){
-      turnOn();
-      result.success(null);
-    }
-    else if (call.method.equals("turnOff")){
-      turnOff();
-      result.success(null);
-    }
+    switch (call.method) {
+      case "getPlatformVersion":
+        result.success("Android " + Build.VERSION.RELEASE);
+        break;
+      case "turnOn":
+        turnOn();
+        result.success(null);
+        break;
+      case "turnOff":
+        turnOff();
+        result.success(null);
+        break;
+      case "getPairedDevices":
+        result.success(getPairedDevices());
+        break;
+      case "isEnabled":
+        Log.i("Bluetooth", "Checkpoint");
+        result.success(isEnabled());
+        break;
 
-
-    else {
-      result.notImplemented();
+      default:
+        result.notImplemented();
+        break;
     }
   }
 }

@@ -12,7 +12,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  List<String> _bluetoothDevices = new List<String>();
 
   @override
   void initState() {
@@ -20,17 +20,17 @@ class _MyAppState extends State<MyApp> {
     initPlatformState();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      platformVersion = await FlutterBluetooth.platformVersion;
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
 
-    FlutterBluetooth.turnOff();
+
+  }
+
+  Future<void> bluetoothPaired() async {
+    List<String> bluetoothDevices;
+
+    isEnabled();
+
+    bluetoothDevices = await FlutterBluetooth.getPairedDevices();
 
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
@@ -38,9 +38,12 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
 
     setState(() {
-      _platformVersion = platformVersion;
+      _bluetoothDevices = bluetoothDevices;
     });
+  }
 
+  Future<void> isEnabled() async{
+    print(await FlutterBluetooth.isEnabled());
   }
 
   @override
@@ -53,7 +56,12 @@ class _MyAppState extends State<MyApp> {
         body: Center(
             child: Column( children:[
               RaisedButton(onPressed:(){FlutterBluetooth.turnOn();}),
-              RaisedButton(onPressed:(){FlutterBluetooth.turnOff();})
+              RaisedButton(onPressed:(){FlutterBluetooth.turnOff();}),
+              RaisedButton(onPressed: (){bluetoothPaired();},),
+              Column(children:
+                _bluetoothDevices.map((i) => Text(i)).toList()
+
+              )
             ]
             )
         ),
